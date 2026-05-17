@@ -36,10 +36,10 @@ LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-
                 THEN null 
                 ELSE row.gender 
             END,
-        c.height = apoc.convert.toFloat(row.height),
-        c.weight = apoc.convert.toFloat(row.weight),
-        c.born = apoc.convert.toInteger(row.year_born),
-        c.died = apoc.convert.toInteger(row.year_died),
+        c.height = toFloat(row.height),
+        c.weight = toFloat(row.weight),
+        c.born = toInteger(row.year_born),
+        c.died = toInteger(row.year_died),
         c.descripcion = row.description;
 
 
@@ -57,12 +57,12 @@ LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-
     MERGE (p)-[:HAS_CLIMATE]->(c)
     MERGE (p)-[:APPEARS_IN]->(f)
     SET 
-        p.diameter = apoc.convert.toInteger(row.diameter),
-        p.rotation_period = apoc.convert.toInteger(row.rotation_period),
-        p.orbital_period = apoc.convert.toInteger(row.orbital_period),
+        p.diameter = toInteger(row.diameter),
+        p.rotation_period = toInteger(row.rotation_period),
+        p.orbital_period = toInteger(row.orbital_period),
         p.gravity = toFloat(replace(row.gravity,"standard","")),
-        p.population = apoc.convert.toFloat(row.population),
-        p.surface_water = apoc.convert.toInteger(row.surface_water);
+        p.population = toFloat(row.population),
+        p.surface_water = toInteger(row.surface_water);
 
 
 LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-full/refs/heads/main/organizations.csv" 
@@ -111,8 +111,8 @@ LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-
             MERGE (s)-[:IS_HOMEWORLD]->(g) ) 
     SET 
         s.designation = row.designation,
-        s.average_height = apoc.convert.toFloat(row.average_height),
-        s.average_lifespan = apoc.convert.toInteger(row.average_lifespan),
+        s.average_height = toFloat(row.average_height),
+        s.average_lifespan = toInteger(row.average_lifespan),
         s.language = row.language;
 
 LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-full/refs/heads/main/vehicles.csv" 
@@ -134,12 +134,12 @@ LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-
 
     SET 
         v.model = row.model,
-        v.cost = apoc.convert.toFloat(row.cost_in_credits),
-        v.length = apoc.convert.toFloat(row.length),
-        v.max_speed = apoc.convert.toFloat(row.max_atmosphering_speed),
-        v.crew = apoc.convert.toInteger(row.crew),
-        v.passengers = apoc.convert.toInteger(row.passengers),
-        v.cargo_capacity = apoc.convert.toFloat(row.cargo_capacity);
+        v.cost = toFloat(row.cost_in_credits),
+        v.length = toFloat(row.length),
+        v.max_speed = toFloat(row.max_atmosphering_speed),
+        v.crew = toInteger(row.crew),
+        v.passengers = toInteger(row.passengers),
+        v.cargo_capacity = toFloat(row.cargo_capacity);
 
 
 LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-full/refs/heads/main/quotes.csv" 
@@ -168,13 +168,13 @@ LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-
     MERGE (s)-[:APPEARS_IN]->(f)
     SET 
         s.model = row.model,
-        s.cost = apoc.convert.toFloat(row.cost_in_credits),
-        s.length = apoc.convert.toFloat(row.length),
-        s.max_speed = apoc.convert.toFloat(row.max_atmosphering_speed),
-        s.crew = apoc.convert.toInteger(row.crew),
-        s.passengers = apoc.convert.toInteger(row.passengers),
-        s.cargo_capacity = apoc.convert.toFloat(row.cargo_capacity),
-        s.hyperdrive_rating = apoc.convert.toFloat(row.hyperdrive_rating);
+        s.cost = toFloat(row.cost_in_credits),
+        s.length = toFloat(row.length),
+        s.max_speed = toFloat(row.max_atmosphering_speed),
+        s.crew = toInteger(row.crew),
+        s.passengers = toInteger(row.passengers),
+        s.cargo_capacity = toFloat(row.cargo_capacity),
+        s.hyperdrive_rating = toFloat(row.hyperdrive_rating);
 
 LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-full/refs/heads/main/weapons.csv" 
     AS row 
@@ -190,6 +190,6 @@ LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-
     MERGE (w)-[:APPEARS_IN]->(f)
     SET 
         w.model = row.model,
-        w.cost = apoc.convert.toFloat(row.cost_in_credits),
-        w.length = apoc.convert.toFloat(row.length),
+        w.cost = toFloat(row.cost_in_credits),
+        w.length = toFloat(row.length),
         w.description = row.description
