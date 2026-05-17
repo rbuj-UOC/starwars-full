@@ -1,40 +1,40 @@
-LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-full/refs/heads/main/films.csv" 
-    AS row 
+LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-full/refs/heads/main/films.csv"
+    AS row
     UNWIND split(row.producer, ",") AS producer
-    MERGE (f:Film {name: trim(row.title), 
+    MERGE (f:Film {name: trim(row.title),
         opening: row.opening_crawl})
-    MERGE (d:Person {name: trim(row.director)}) 
+    MERGE (d:Person {name: trim(row.director)})
     MERGE (f)-[:DIRECTED_BY]->(d)
     MERGE (p:Person {name: trim(producer)})
     MERGE (p)<-[:PRODUCED_BY]-(f);
 
 
 
-LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-full/refs/heads/main/characters.csv" 
+LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-full/refs/heads/main/characters.csv"
     AS row
     MERGE (c:Character {name: row.name})
     FOREACH(
-        it IN 
-            CASE row.homeworld WHEN "None" 
-                THEN null 
+        it IN
+            CASE row.homeworld WHEN "None"
+                THEN null
                 WHEN "Unknown" THEN null
-                ELSE trim(row.homeworld) 
-            END | 
-            MERGE (p:Planet {name: it})     
-            MERGE (c)-[:IS_HOMEWORLD]->(p) ) 
+                ELSE trim(row.homeworld)
+            END |
+            MERGE (p:Planet {name: it})
+            MERGE (c)-[:IS_HOMEWORLD]->(p) )
     FOREACH(
-        it IN 
-            CASE row.species WHEN "Unknown" 
-                THEN null 
-                ELSE trim(row.species) 
-            END | 
+        it IN
+            CASE row.species WHEN "Unknown"
+                THEN null
+                ELSE trim(row.species)
+            END |
             MERGE (s:Species {name: it})
             MERGE (c)-[:IS_OF_SPECIE]->(s)
             )
-    SET 
-        c.gender = CASE row.gender WHEN "None" 
-                THEN null 
-                ELSE row.gender 
+    SET
+        c.gender = CASE row.gender WHEN "None"
+                THEN null
+                ELSE row.gender
             END,
         c.height = toFloat(row.height),
         c.weight = toFloat(row.weight),
@@ -43,7 +43,7 @@ LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-
         c.descripcion = row.description;
 
 
-LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-full/refs/heads/main/planets.csv" 
+LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-full/refs/heads/main/planets.csv"
     AS row
     UNWIND split(row.terrain, ',') AS terrain
     UNWIND split(row.climate, ',') AS climate
@@ -56,7 +56,7 @@ LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-
     MERGE (p)-[:HAS_TERRAIN]->(t)
     MERGE (p)-[:HAS_CLIMATE]->(c)
     MERGE (p)-[:APPEARS_IN]->(f)
-    SET 
+    SET
         p.diameter = toInteger(row.diameter),
         p.rotation_period = toInteger(row.rotation_period),
         p.orbital_period = toInteger(row.orbital_period),
@@ -65,7 +65,7 @@ LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-
         p.surface_water = toInteger(row.surface_water);
 
 
-LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-full/refs/heads/main/organizations.csv" 
+LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-full/refs/heads/main/organizations.csv"
     AS row
     UNWIND split(row.leader, ",") AS leader
     UNWIND split(row.members, ",") AS member
@@ -76,50 +76,50 @@ LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-
     MERGE (o)<-[:LEADER_OF]-(c)
     MERGE (o)-[:APPEARS_IN]->(f)
     FOREACH(
-        it IN 
-            CASE trim(row.afiliation) 
-                WHEN "None" 
-                THEN null 
-                ELSE trim(row.afiliation) 
-            END | 
+        it IN
+            CASE trim(row.afiliation)
+                WHEN "None"
+                THEN null
+                ELSE trim(row.afiliation)
+            END |
             MERGE (a:Affiliation {name: it})
             MERGE (o)-[:BELONGS_TO]->(a)
             )
-    SET 
-        o.founded = toInteger(row.founded), 
+    SET
+        o.founded = toInteger(row.founded),
         o.dissolved = toInteger(row.dissolved),
         o.description = row.description;
 
-LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-full/refs/heads/main/species.csv" 
+LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-full/refs/heads/main/species.csv"
     AS row
     MERGE (s:Species {name: row.name})
     FOREACH(
-        it IN 
+        it IN
             CASE trim(replace(row.classification, "Unknown",""))
-                WHEN "" THEN null 
-                ELSE trim(row.classification) 
-            END | 
-            MERGE (g:Genus {name: it})     
-            MERGE (s)-[:BELONGS_TO]->(g) ) 
+                WHEN "" THEN null
+                ELSE trim(row.classification)
+            END |
+            MERGE (g:Genus {name: it})
+            MERGE (s)-[:BELONGS_TO]->(g) )
     FOREACH(
-        it IN 
+        it IN
             CASE trim(replace(replace(row.homeworld, "Unknown",""), "Various", "" ))
-                WHEN "" THEN null 
+                WHEN "" THEN null
                 ELSE trim(row.homeworld)
-            END | 
-            MERGE (p:Planet {name: it})     
-            MERGE (s)-[:IS_HOMEWORLD]->(g) ) 
-    SET 
+            END |
+            MERGE (p:Planet {name: it})
+            MERGE (s)-[:IS_HOMEWORLD]->(g) )
+    SET
         s.designation = row.designation,
         s.average_height = toFloat(row.average_height),
         s.average_lifespan = toInteger(row.average_lifespan),
         s.language = row.language;
 
-LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-full/refs/heads/main/vehicles.csv" 
+LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-full/refs/heads/main/vehicles.csv"
     AS row
-    UNWIND CASE row.pilots 
-            WHEN "None" THEN NULL 
-            ELSE split(row.pilots, ",") 
+    UNWIND CASE row.pilots
+            WHEN "None" THEN NULL
+            ELSE split(row.pilots, ",")
         END AS pilot
     UNWIND split(row.films, ",") AS film
     MERGE (v:Vehicle {name: row.name})
@@ -132,7 +132,7 @@ LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-
     MERGE (p)-[:PILOTED]->(v)
     MERGE (v)-[:APPEARS_IN]->(f)
 
-    SET 
+    SET
         v.model = row.model,
         v.cost = toFloat(row.cost_in_credits),
         v.length = toFloat(row.length),
@@ -142,19 +142,19 @@ LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-
         v.cargo_capacity = toFloat(row.cargo_capacity);
 
 
-LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-full/refs/heads/main/quotes.csv" 
-    AS row 
+LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-full/refs/heads/main/quotes.csv"
+    AS row
     MERGE (q:Quote {text: trim(row.quote)})
     MERGE (c:Character {name: trim(row.character_name)})
     MERGE (f:Film {name: trim(row.source)})
     MERGE (q)-[:QUOTE_FROM]->(c)
     MERGE (q)-[:SAID_IN]->(f);
 
-LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-full/refs/heads/main/starships.csv" 
-    AS row 
-    UNWIND CASE row.pilots 
-            WHEN "None" THEN null 
-            ELSE split(row.pilots, ",") 
+LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-full/refs/heads/main/starships.csv"
+    AS row
+    UNWIND CASE row.pilots
+            WHEN "None" THEN null
+            ELSE split(row.pilots, ",")
         END AS pilot
     UNWIND split(row.films, ",") AS film
     MERGE (s:Starship {name: row.name})
@@ -166,7 +166,7 @@ LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-
     MERGE (s)-[:STARSHIP_CLASS]->(cl)
     MERGE (p)-[:PILOTED]->(s)
     MERGE (s)-[:APPEARS_IN]->(f)
-    SET 
+    SET
         s.model = row.model,
         s.cost = toFloat(row.cost_in_credits),
         s.length = toFloat(row.length),
@@ -176,8 +176,8 @@ LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-
         s.cargo_capacity = toFloat(row.cargo_capacity),
         s.hyperdrive_rating = toFloat(row.hyperdrive_rating);
 
-LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-full/refs/heads/main/weapons.csv" 
-    AS row 
+LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-full/refs/heads/main/weapons.csv"
+    AS row
     UNWIND CASE row.manufacturer WHEN "Various" THEN NULL ELSE split(row.manufacturer, ",") END AS manufacturer
     UNWIND split(row.type, "/") AS weapon_type
     UNWIND split(row.films, ",") AS film
@@ -188,7 +188,7 @@ LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-
     MERGE (w)-[:MANUFACTURED_BY]->(m)
     MERGE (w)-[:WEAPON_TYPE]->(wt)
     MERGE (w)-[:APPEARS_IN]->(f)
-    SET 
+    SET
         w.model = row.model,
         w.cost = toFloat(row.cost_in_credits),
         w.length = toFloat(row.length),
