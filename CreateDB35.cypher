@@ -108,7 +108,7 @@ LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/rbuj-UOC/starwars-
                 ELSE trim(row.homeworld)
             END |
             MERGE (p:Planet {name: it})
-            MERGE (s)-[:IS_HOMEWORLD]->(g) )
+            MERGE (s)-[:IS_HOMEWORLD]->(p) )
     SET
         s.designation = row.designation,
         s.average_height = apoc.convert.toFloat(row.average_height),

@@ -108,7 +108,7 @@ LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/planetacomputer/st
                 ELSE trim(row.homeworld)
             END |
             MERGE (p:Planet {name: it})
-            MERGE (s)-[:IS_HOMEWORLD]->(g) )
+            MERGE (s)-[:IS_HOMEWORLD]->(p) )
     SET
         s.designation = row.designation,
         s.average_height = toFloatOrNull(row.average_height),
